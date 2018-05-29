@@ -19,6 +19,7 @@ public class BareBonesHTTPD extends Thread {
         connectedClient = client;
     }
 
+
     public void run() {
 
         try {
