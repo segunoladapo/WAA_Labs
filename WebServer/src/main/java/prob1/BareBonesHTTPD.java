@@ -1,6 +1,7 @@
 package prob1;
 
 import java.io.*;
+import java.lang.reflect.Method;
 import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,14 +41,33 @@ public class BareBonesHTTPD extends Thread {
         }
     }
 
-    private void processRequest(BBHttpRequest httpRequest, BBHttpResponse httpResponse) {
-
-        String fileName = httpRequest.getUri();
-
-        String fileFullPathName = folderUri + fileName;
-
-        Path path = Paths.get(fileFullPathName);
+    private void processRequest(BBHttpRequest httpRequest, BBHttpResponse httpResponse) throws Exception {
         StringBuilder response = new StringBuilder();
+        Properties prop = new Properties();
+        String configFileName = "config.properties";
+        ClassLoader classLoader = BareBonesHTTPD.class.getClassLoader();
+
+        // Make sure that the configuration file exists
+        URL res = Objects.requireNonNull(classLoader.getResource(configFileName),
+                "Can't find configuration file config.properties");
+
+        InputStream is = new FileInputStream(res.getFile());
+        prop.load(is);
+        if (prop.getProperty(httpRequest.getUri()) != null) {
+            String className = prop.getProperty(httpRequest.getUri());
+            Class<?> c = Class.forName(className);
+            Object pageInstance = c.newInstance();
+            Method getNameMethod = pageInstance.getClass().getMethod("getContent");
+            String result = (String) getNameMethod.invoke(pageInstance);
+            response.append(result);
+            httpResponse.setStatusCode(200);
+        } else {
+            String fileName = httpRequest.getUri();
+
+            String fileFullPathName = folderUri + fileName;
+
+            Path path = Paths.get(fileFullPathName);
+
 /*
 
         response.append("<!DOCTYPE html>");
@@ -73,42 +93,36 @@ public class BareBonesHTTPD extends Thread {
             response.append("<br />");
         }
 */
-        if (Files.exists(path)) {
-            //go ahead and read files
-            try (BufferedReader br = new BufferedReader(new FileReader(fileFullPathName)))
-            {
+            if (Files.exists(path)) {
+                //go ahead and read files
+                try (BufferedReader br = new BufferedReader(new FileReader(fileFullPathName))) {
+                    response.append("<!DOCTYPE html>");
+                    response.append("<html>");
+                    String sCurrentLine;
+                    while ((sCurrentLine = br.readLine()) != null) {
+                        response.append(sCurrentLine).append("<br />");
+                    }
+                    response.append("</html>");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                httpResponse.setStatusCode(200);
+
+
+            } else {
+                //Else return 404
                 response.append("<!DOCTYPE html>");
                 response.append("<html>");
+                response.append("<head>");
+                response.append("<title>Almost an HTTP Server</title>");
+                response.append("</head>");
                 response.append("<html>");
-                String sCurrentLine;
-                while ((sCurrentLine = br.readLine()) != null)
-                {
-                    response.append(sCurrentLine).append("<br />");
-                }
                 response.append("</html>");
+                httpResponse.setStatusCode(404);
+                //httpResponse.setMessage(response.toString());
             }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-            httpResponse.setStatusCode(200);
-
-
-        } else {
-            //Else return 404
-            response.append("<!DOCTYPE html>");
-            response.append("<html>");
-            response.append("<head>");
-            response.append("<title>Almost an HTTP Server</title>");
-            response.append("</head>");
-            response.append("<html>");
-            response.append("</html>");
-            httpResponse.setStatusCode(404);
-            //httpResponse.setMessage(response.toString());
         }
         httpResponse.setMessage(response.toString());
-
-
     }
 
     private BBHttpRequest getRequest(InputStream inputStream) throws IOException {
