@@ -1,6 +1,7 @@
 package prob1;
 
 import java.io.*;
+import java.lang.reflect.Method;
 import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,6 +19,7 @@ public class BareBonesHTTPD extends Thread {
     public BareBonesHTTPD(Socket client) {
         connectedClient = client;
     }
+
 
     public void run() {
 
@@ -39,75 +41,58 @@ public class BareBonesHTTPD extends Thread {
         }
     }
 
-    private void processRequest(BBHttpRequest httpRequest, BBHttpResponse httpResponse) {
-
-        String fileName = httpRequest.getUri();
-
-        String fileFullPathName = folderUri + fileName;
-
-        Path path = Paths.get(fileFullPathName);
+    private void processRequest(BBHttpRequest httpRequest, BBHttpResponse httpResponse) throws Exception {
         StringBuilder response = new StringBuilder();
-/*
+        Properties prop = new Properties();
+        String configFileName = "config.properties";
+        ClassLoader classLoader = BareBonesHTTPD.class.getClassLoader();
 
-        response.append("<!DOCTYPE html>");
-        response.append("<html>");
-        response.append("<head>");
-        response.append("<title>Almost an HTTP Server</title>");
-        response.append("</head>");
-        response.append("<body>");
-        response.append("<h1>This is the HTTP Server</h1>");
-        response.append("<h2>Your request was:</h2>\r\n");
-        response.append("<h3>Request Line:</h3>\r\n");
-        response.append(httpRequest.getStartLine());
-        response.append("<br />");
-        response.append("<h3> Header Fields: </h3>");
-*/
-     /*   for (String headerField : httpRequest.getFields()) {
-            response.append(headerField.replace("<", "&lt;").replace(">", "&gt;").replace("&", "&amp;"));
-            response.append("<br />");
-        }
-        response.append("<h3> Payload: </h3>");
-        for (String messageLine : httpRequest.getMessage()) {
-            response.append(messageLine.replace("<", "&lt;").replace("&", "&amp;"));
-            response.append("<br />");
-        }
-*/
-        if (Files.exists(path)) {
-            //go ahead and read files
-            try (BufferedReader br = new BufferedReader(new FileReader(fileFullPathName)))
-            {
+        // Make sure that the configuration file exists
+        URL res = Objects.requireNonNull(classLoader.getResource(configFileName),
+                "Can't find configuration file config.properties");
+
+        InputStream is = new FileInputStream(res.getFile());
+        prop.load(is);
+        if (prop.getProperty(httpRequest.getUri()) != null) {
+            String className = prop.getProperty(httpRequest.getUri());
+            Class<?> c = Class.forName(className);
+            Object pageInstance = c.newInstance();
+            Method getNameMethod = pageInstance.getClass().getMethod(prop.getProperty("methodname"));
+            String result = (String) getNameMethod.invoke(pageInstance);
+            response.append(result);
+            httpResponse.setStatusCode(200);
+        } else {
+            String fileName = httpRequest.getUri();
+            String fileFullPathName = folderUri + fileName;
+            Path path = Paths.get(fileFullPathName);
+            if (Files.exists(path)) {
+                //go ahead and read files
+                try (BufferedReader br = new BufferedReader(new FileReader(fileFullPathName))) {
+                    response.append("<!DOCTYPE html>");
+                    response.append("<html>");
+                    String sCurrentLine;
+                    while ((sCurrentLine = br.readLine()) != null) {
+                        response.append(sCurrentLine).append("<br />");
+                    }
+                    response.append("</html>");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                httpResponse.setStatusCode(200);
+
+            } else {
+                //Else return 404
                 response.append("<!DOCTYPE html>");
                 response.append("<html>");
+                response.append("<head>");
+                response.append("<title>Almost an HTTP Server</title>");
+                response.append("</head>");
                 response.append("<html>");
-                String sCurrentLine;
-                while ((sCurrentLine = br.readLine()) != null)
-                {
-                    response.append(sCurrentLine).append("<br />");
-                }
                 response.append("</html>");
+                httpResponse.setStatusCode(404);
             }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-            httpResponse.setStatusCode(200);
-
-
-        } else {
-            //Else return 404
-            response.append("<!DOCTYPE html>");
-            response.append("<html>");
-            response.append("<head>");
-            response.append("<title>Almost an HTTP Server</title>");
-            response.append("</head>");
-            response.append("<html>");
-            response.append("</html>");
-            httpResponse.setStatusCode(404);
-            //httpResponse.setMessage(response.toString());
         }
         httpResponse.setMessage(response.toString());
-
-
     }
 
     private BBHttpRequest getRequest(InputStream inputStream) throws IOException {
