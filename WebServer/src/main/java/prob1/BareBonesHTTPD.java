@@ -57,42 +57,14 @@ public class BareBonesHTTPD extends Thread {
             String className = prop.getProperty(httpRequest.getUri());
             Class<?> c = Class.forName(className);
             Object pageInstance = c.newInstance();
-            Method getNameMethod = pageInstance.getClass().getMethod("getContent");
+            Method getNameMethod = pageInstance.getClass().getMethod(prop.getProperty("methodname"));
             String result = (String) getNameMethod.invoke(pageInstance);
             response.append(result);
             httpResponse.setStatusCode(200);
         } else {
             String fileName = httpRequest.getUri();
-
             String fileFullPathName = folderUri + fileName;
-
             Path path = Paths.get(fileFullPathName);
-
-/*
-
-        response.append("<!DOCTYPE html>");
-        response.append("<html>");
-        response.append("<head>");
-        response.append("<title>Almost an HTTP Server</title>");
-        response.append("</head>");
-        response.append("<body>");
-        response.append("<h1>This is the HTTP Server</h1>");
-        response.append("<h2>Your request was:</h2>\r\n");
-        response.append("<h3>Request Line:</h3>\r\n");
-        response.append(httpRequest.getStartLine());
-        response.append("<br />");
-        response.append("<h3> Header Fields: </h3>");
-*/
-     /*   for (String headerField : httpRequest.getFields()) {
-            response.append(headerField.replace("<", "&lt;").replace(">", "&gt;").replace("&", "&amp;"));
-            response.append("<br />");
-        }
-        response.append("<h3> Payload: </h3>");
-        for (String messageLine : httpRequest.getMessage()) {
-            response.append(messageLine.replace("<", "&lt;").replace("&", "&amp;"));
-            response.append("<br />");
-        }
-*/
             if (Files.exists(path)) {
                 //go ahead and read files
                 try (BufferedReader br = new BufferedReader(new FileReader(fileFullPathName))) {
@@ -108,7 +80,6 @@ public class BareBonesHTTPD extends Thread {
                 }
                 httpResponse.setStatusCode(200);
 
-
             } else {
                 //Else return 404
                 response.append("<!DOCTYPE html>");
@@ -119,7 +90,6 @@ public class BareBonesHTTPD extends Thread {
                 response.append("<html>");
                 response.append("</html>");
                 httpResponse.setStatusCode(404);
-                //httpResponse.setMessage(response.toString());
             }
         }
         httpResponse.setMessage(response.toString());
