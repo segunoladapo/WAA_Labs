@@ -1,6 +1,9 @@
-package cs544.sample;
+package cs544.dao;
+
+import cs544.model.Car;
 
 import java.util.List;
+
 
 public interface ICarDao {
 

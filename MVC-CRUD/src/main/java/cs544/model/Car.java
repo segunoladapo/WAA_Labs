@@ -1,4 +1,4 @@
-package cs544.sample;
+package cs544.model;
 
 public class Car {
 	private int id;

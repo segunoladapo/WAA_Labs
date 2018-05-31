@@ -1,19 +1,22 @@
-package cs544.exercise8;
+package cs544.dao;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cs544.sample.NoSuchResourceException;
+import cs544.exception.NoSuchResourceException;
+import cs544.model.Book;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class BookDao implements IBookDao {
 	private static int idCount = 1;
 	private Map<Integer, Book> books = new HashMap<>();
 
 	public BookDao() {
-		add(new Book());
-		add(new Book());
+		add(new Book("Head First", "12345","Kathy Sierra and Bert Bates", 56.00));
+		add(new Book("Java A Beginner's Guide","98765","Herbert Schildt",45.00));
 	}
 
 	@Override

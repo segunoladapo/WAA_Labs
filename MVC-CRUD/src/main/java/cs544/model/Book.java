@@ -1,4 +1,4 @@
-package cs544.exercise8;
+package cs544.model;
 
 public class Book {
 	private int id;
@@ -14,7 +14,7 @@ public class Book {
 	public Book(String title, String iSBN, String author, double price) {
 		super();
 		this.title = title;
-		ISBN = iSBN;
+		this.ISBN = iSBN;
 		this.author = author;
 		this.price = price;
 	}

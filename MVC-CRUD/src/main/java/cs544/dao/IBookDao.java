@@ -1,8 +1,11 @@
-package cs544.exercise8;
+package cs544.dao;
+
+import cs544.model.Book;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-
+@Repository
 public interface IBookDao {
 
 	public abstract List<Book> getAll();
