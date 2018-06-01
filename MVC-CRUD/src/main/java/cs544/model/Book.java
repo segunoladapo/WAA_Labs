@@ -1,7 +1,13 @@
 package cs544.model;
 
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.NotNull;
+
 public class Book {
 	private int id;
+	@NotEmpty
 	private String title;
 	private String ISBN;
 	private String author;
