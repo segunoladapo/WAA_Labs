@@ -15,6 +15,7 @@
 <div class="container">
     <div class="jumbotron">
         <h1>Welcome to Spring Boot-MVC web Application</h1>
+        <center><a href="/login?redirectPath=bookAuthenticate">Login To Car Page</a> | <a href="/login?redirectPath=bookAuthenticate">Login To Book Page</a> </center>
     </div>
 </div>
 </body>
