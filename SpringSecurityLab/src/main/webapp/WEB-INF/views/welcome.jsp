@@ -10,13 +10,16 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
 
     <title>Spring Boot</title>
+    <script>
+        function getLoginPage() {
+            window.location = '/login';
+        }
+    </script>
 </head>
 <body>
-<div class="container">
     <div class="jumbotron">
         <h1>Welcome to Spring Boot-MVC web Application</h1>
-        <center><a href="/login?redirectPath=bookAuthenticate">Login To Car Page</a> | <a href="/login?redirectPath=bookAuthenticate">Login To Book Page</a> </center>
+        <center><button onclick="getLoginPage()">PLease Login to Access Books and Cars in Store</button></center>
     </div>
-</div>
 </body>
 </html>

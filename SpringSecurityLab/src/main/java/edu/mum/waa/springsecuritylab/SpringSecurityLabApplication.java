@@ -1,4 +1,4 @@
-package edu.mum.waa.SpringSecurityLab;
+package edu.mum.waa.springsecuritylab;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

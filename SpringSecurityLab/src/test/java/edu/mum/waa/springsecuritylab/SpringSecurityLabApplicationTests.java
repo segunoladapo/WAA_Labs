@@ -1,4 +1,4 @@
-package edu.mum.waa.SpringSecurityLab;
+package edu.mum.waa.springsecuritylab;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
