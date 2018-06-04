@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow
+        http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
+        start-state="customerDetails">
+
+	<on-start>
+		<evaluate expression="pizzaOrderController.createOrder()"
+			result="flowScope.order" />
+	</on-start>
+
+	<view-state id="customerDetails" model="order" >
+		<transition on="next" to="selectPizza">
+			<evaluate
+				expression="pizzaOrderController.validateCust(order, messageContext)" />
+			<evaluate expression="pizzaOrderController.initPizzaList()"
+				result="flowScope.pizzaList" />
+		</transition>
+		<transition on="cancel" to="cancelOrder" />
+	</view-state>
+
+	<view-state id="selectPizza" model="viewScope.newpizza">
+		<on-render>
+			<evaluate expression="pizzaOrderController.createPizza()"
+				result="viewScope.newpizza" />
+		</on-render>
+		<transition on="previous" to="customerDetails" />
+		<transition on="next" to="validateOrder" />
+		<transition on="add" to="selectPizza">
+			<evaluate
+				expression="pizzaOrderController.addPizza(order,viewScope.newpizza)" />
+		</transition>
+		<transition on="clear" to="selectPizza">
+			<evaluate expression="pizzaOrderController.clearPizzas(order)" />
+		</transition>
+		<transition on="cancel" to="cancelOrder" />
+	</view-state>
+
+	<action-state id="validateOrder">
+		<evaluate
+			expression="order.pizzaList.size() > 0" />
+		<transition on="yes" to="complementaryDrinks" />
+		<transition on="no" to="selectPizza" />
+	</action-state>
+
+	<action-state id="complementaryDrinks">
+		<evaluate
+			expression="pizzaOrderController.hasComplementaryDrinks(order)" />
+		<transition on="yes" to="showDrink" />
+		<transition on="no" to="reviewOrder" />
+	</action-state>
+
+
+
+	<view-state id="showDrink">
+		<transition on="previous" to="selectPizza" />
+		<transition on="next" to="reviewOrder" />
+		<transition on="cancel" to="cancelOrder" />
+	</view-state>
+
+	<view-state id="reviewOrder" model="order">
+
+		<transition on="previous" to="selectPizza" />
+		<transition on="next" to="orderConfirmation">
+			<evaluate expression="pizzaOrderController.submitOrder(order)" />
+		</transition>
+		<transition on="cancel" to="cancelOrder" />
+	</view-state>
+
+	<view-state id="orderConfirmation" view="orderConfirmation" >
+		<transition on="complete" to="goHome" />
+	</view-state>
+
+	<view-state id="cancelOrder" view="cancelOrder" >
+		<transition on="exit" to="goHome" />
+	</view-state>
+
+	<end-state id="goHome" view="externalRedirect:servletRelative:/" />
+
+</flow>
