@@ -17,9 +17,15 @@
     </script>
 </head>
 <body>
-    <div class="jumbotron">
-        <h1>Welcome to Spring Boot-MVC web Application</h1>
-        <center><button onclick="getLoginPage()">PLease Login to Access Books and Cars in Store</button></center>
+
+<div class="jumbotron">
+    <div class="row align-items-center justify-content-center">
+        <h1>Welcome to Spring-Boot MVC web Application</h1>
     </div>
+</div>
+<div class="row align-items-center justify-content-center">
+    <button onclick="getLoginPage()">PLease Login to Access Books and Cars in Store</button>
+</div>
+
 </body>
 </html>

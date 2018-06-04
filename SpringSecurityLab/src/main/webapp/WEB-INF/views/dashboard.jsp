@@ -14,7 +14,11 @@
     <title>DashBoard Page</title>
 </head>
 <body>
-
+<div class="jumbotron">
+    <div class="row align-items-center justify-content-center">
+        <h1>Welcome to Spring-Boot MVC web Application</h1>
+    </div>
+</div>
 <security:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SALES')">
 
     <div class="container">
@@ -67,7 +71,7 @@
                     <td>${car.model}</td>
                     <td>${car.year}</td>
                     <td>${car.color}</td>
-                    <td><a href="cars/${car.id}">edit</a></td>
+                    <td><a href="cars/${car.id}">Edit</a></td>
                 </tr>
             </c:forEach>
             </tbody>
